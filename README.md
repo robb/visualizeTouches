@@ -1,10 +1,12 @@
 # `visualizeTouches()`
 
-There's the kind of work that has your fingerprints all over it. However, Screen Recording only captures what happens under the glass, leaving people to guess where you put your fingers down.
+There's the kind of work that has your fingerprints all over it. However, Screen Recording only captures what happens under the glass, leaving people to guess where you put your fingers down. What if there was a better way?
 
-Using the `visualizeTouches()` View modifier, you can automatically visualize touches when you're recording your screen or mirroring it, e.g. via AirPlay.
+https://github.com/user-attachments/assets/9a6d43aa-9bfe-4b0a-8ba6-0690c0de71aa
 
-![Video of the modifier in action](/Video/visualizeTouches.mp4)
+Using the `visualizeTouches()` View modifier for SwiftUI, you can visualize touches when you're recording your screen or mirroring it, e.g. via AirPlay.
+
+This happens automatically, normal use is not affected.
 
 ```swift
 List {
