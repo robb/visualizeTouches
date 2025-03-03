@@ -2,7 +2,7 @@ import Combine
 import SwiftUI
 
 public extension View {
-    
+
     /// Conditionally visualizes touches on the view.
     ///
     /// Only touches that hit test with the view are visualized. In order to
@@ -24,7 +24,7 @@ public extension View {
         modifier(TouchVisualizer(isEnabled: isEnabled))
     }
 
-    /// Visualizes touches on the view during screen recording, screen mirror
+    /// Visualizes touches on the view during screen recording, screen mirroring
     /// or any time in the iOS Simulator.
     ///
     /// Only touches that hit test with the view are visualized. In order to
