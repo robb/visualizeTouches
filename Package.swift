@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "VisualizeTouches",
     platforms: [
-        .iOS(.v18)
+        .iOS(.v17)
     ],
     products: [
         .library(

@@ -1,8 +1,8 @@
 import Combine
 import SwiftUI
 
+@available(iOS 17.0, *)
 public extension View {
-
     /// Conditionally visualizes touches on the view.
     ///
     /// Only touches that hit test with the view are visualized. In order to
@@ -17,11 +17,13 @@ public extension View {
     ///     .contentShape(.rect)
     ///     .visualizeTouches()
     ///
+    /// Note that this view modifier has no effect on iOS 17 and is only made
+    /// available on this version for convenience.
     ///
     /// - Parameter isEnabled: If `true`, touches on this view are visualized.
     /// - Returns: A view that visualizes touches.
     func visualizeTouches(_ isEnabled: Bool) -> some View {
-        modifier(TouchVisualizer(isEnabled: isEnabled))
+        modifier(ConditionalTouchVisualizer(isEnabled: isEnabled))
     }
 
     /// Visualizes touches on the view during screen recording, screen mirroring
@@ -38,6 +40,9 @@ public extension View {
     ///     }
     ///     .contentShape(.rect)
     ///     .visualizeTouches()
+    ///
+    /// Note that this view modifier has no effect on iOS 17 and is only made
+    /// available on this version for convenience.
     ///
     /// - Returns: A view that visualizes all touches.
     func visualizeTouches() -> some View {
@@ -76,13 +81,56 @@ private struct AutoVisualizer: ViewModifier {
     }
 }
 
-private struct TouchVisualizer: ViewModifier {
-    struct Touch: Identifiable {
-        var id: Int
+@preconcurrency @MainActor
+private struct ConditionalTouchVisualizer: ViewModifier {
+    nonisolated var isEnabled: Bool
 
-        var coordinates: CGPoint
+    func body(content: Content) -> Never {
+        fatalError()
     }
 
+    @available(iOS 18.0, *)
+    nonisolated var modifier: TouchVisualizer {
+        TouchVisualizer(isEnabled: isEnabled)
+    }
+
+    nonisolated var empty: EmptyModifier {
+        EmptyModifier()
+    }
+
+    nonisolated public static func _makeView(
+        modifier: _GraphValue<Self>,
+        inputs: _ViewInputs,
+        body: @escaping (_Graph, _ViewInputs) -> _ViewOutputs
+    ) -> _ViewOutputs {
+        if #available(iOS 18.0, *) {
+            TouchVisualizer._makeView(modifier: modifier[\.modifier], inputs: inputs, body: body)
+        } else {
+            EmptyModifier._makeView(modifier: modifier[\.empty], inputs: inputs, body: body)
+        }
+    }
+
+    nonisolated public static func _makeViewList(
+        modifier: _GraphValue<Self>,
+        inputs: _ViewListInputs,
+        body: @escaping (_Graph, _ViewListInputs) -> _ViewListOutputs
+    ) -> _ViewListOutputs {
+        if #available(iOS 18.0, *) {
+            TouchVisualizer._makeViewList(modifier: modifier[\.modifier], inputs: inputs, body: body)
+        } else {
+            EmptyModifier._makeViewList(modifier: modifier[\.empty], inputs: inputs, body: body)
+        }
+    }
+}
+
+private struct Touch: Identifiable {
+    var id: Int
+
+    var coordinates: CGPoint
+}
+
+@available(iOS 18.0, *)
+private struct TouchVisualizer: ViewModifier {
     @State var touches: [Touch] = []
 
     var isEnabled: Bool
@@ -165,7 +213,7 @@ private struct TouchVisualizerGesture: UIGestureRecognizerRepresentable {
 
     var isEnabled: Bool
 
-    @Binding var touches: [TouchVisualizer.Touch]
+    @Binding var touches: [Touch]
 
     func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator {
         Coordinator()
@@ -186,7 +234,7 @@ private struct TouchVisualizerGesture: UIGestureRecognizerRepresentable {
                 let globalPoint = recognizer.location(ofTouch: i, in: nil)
                 let point = context.converter.convert(globalPoint: globalPoint)
 
-                return TouchVisualizer.Touch(id: i, coordinates: point)
+                return Touch(id: i, coordinates: point)
             }
         default:
             touches = []
